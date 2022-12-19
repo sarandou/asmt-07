@@ -17,8 +17,8 @@ class Holiday:
     def __init__(self,name, date):
         #Your Code Here   
         self.name = name
-        #self.date = date
-        self.date = datetime.strptime(date, '%Y-%m-%d').date()     
+        self.date = date
+        #self.date = datetime.strptime(date, '%Y-%m-%d').date()     
     
     def __str__ (self):
         # String output
@@ -36,21 +36,6 @@ class HolidayList:
     def __init__(self):
        self.innerHolidays = []
 
-    def menu(self):
-        print('Holidays')
-        print('-----------')
-        print('1. Add a holiday')
-        print('2. Remove a holiday')
-        print('3. Save holiday list')
-        print('4. View holidays')
-        print('5. Exit')
-        user_input = int(input('Choose an option'))
-        if user_input in range(1,6):
-            return user_input
-        else:
-            print('Not an option')
-
-
     def addHoliday(self,holidayObj):
         # Make sure holidayObj is an Holiday Object by checking the type
         # Use innerHolidays.append(holidayObj) to add holiday
@@ -58,37 +43,52 @@ class HolidayList:
         if type(holidayObj) != Holiday:
             return "Not an accurate holiday"
         if type(holidayObj) == Holiday:
-            self.innerHolidays.append[holidayObj]
-            day = holidayObj[0]
-            print(f'{day} added to holiday list')
-            return self.innerHolidays
+            self.innerHolidays.append(holidayObj)
+            print(f'Added to holiday list')
+            #return self.innerHolidays
 
-    def findHoliday(HolidayName, Date):
-        pass
+
+    def findHoliday(self, HolidayName, Date):
+        findHoliday = Holiday(HolidayName, Date)
+        for i in self.innerHolidays:
+            if i == findHoliday:
+                return i 
+        return False
+
         # Find Holiday in innerHolidays
         # Return Holiday
 
-    def removeHoliday(HolidayName, Date):
-        pass
+    def removeHoliday(self, HolidayName, Date):
         # Find Holiday in innerHolidays by searching the name and date combination.
         # remove the Holiday from innerHolidays
         # inform user you deleted the holiday
+        removeHoliday = self.findHoliday(Holiday)
+        if removeHoliday == False:
+            return False
+        else:
+            self.innerHolidays.remove(removeHoliday)
+
 
     def read_json(self,filelocation):
         # Read in things from json file location
         # Use addHoliday function to add holidays to inner list.
-        with open("holidays.json") as f:
+        with open("holidays.json", 'r') as f:
             holidays = json.load(f)
-            holidays_list = dict['holidays']
-        for i in holidays_list['holidays']:
-            holidayObj = Holiday(i['name'],i['date'])
-            self.addHoliday(holidayObj)
+            #holidays_list = dict['holidays']
+        for i in holidays['holidays']:
+            #holidayObj = Holiday(i['name'],i['date'])
+            holiday_name = i['name']
+            date = i['date']
+            date = date.split('-')
+            date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+            self.addHoliday(Holiday(holiday_name,date))
 
 
     def save_to_json(self, filelocation):
         holidays_out = json.dumps(self.innerHolidays, indent = None)
-        with open('holidays.json') as f:
+        with open('holidays.json', 'r') as f:
             f.write(holidays_out)
+
         # Write out json file to selected file.
         
     def scrapeHolidays(self):
@@ -149,6 +149,19 @@ class HolidayList:
         # If yes, use your getWeather function and display results
         pass
 
+    def menu(self):
+        print('Holidays')
+        print('-----------')
+        print('1. Add a holiday')
+        print('2. Remove a holiday')
+        print('3. Save holiday list')
+        print('4. View holidays')
+        print('5. Exit')
+        user_input = int(input('Choose an option'))
+        if user_input in range(1,6):
+            return user_input
+        else:
+            print('Not an option')
 
 
 def main():
@@ -164,9 +177,11 @@ def main():
     # 7. Ask the User if they would like to Continue, if not, end the while loop, ending the program.  If they do wish to continue, keep the program going. 
     holidays = HolidayList()
     holidays.read_json('holidays.json')
+
+
     holidays.scrapeHolidays()
     holidays.numHolidays()
-    holidays.menu()
+    #holidays.menu()
     ended = False
     while not ended:
         user_input = holidays.menu()
@@ -180,6 +195,36 @@ def main():
             holidays.addHoliday(i)
         if user_input == 2:
             print('Remove a holiday')
+            holiday_name = input('Enter holiday name you want to remove')
+            date = input("Enter holiday's date as YYYY-MM-DD")
+            date = date.split()
+            date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+            remove_confirm = input('Do you want to remove? y/n')
+            if remove_confirm == 'y':
+                holidayObj = Holiday(holiday_name, date)
+                HolidayList.removeHoliday(holiday_name, date)
+            else:
+                print('Not removed')
+        if user_input == 3:
+            print('Save holiday list')
+            save_confirm = input('Do you want to save? y/n')
+            if save_confirm == 'y':
+                holidays.save_to_json('holidays.json')
+            else:
+                print('Not saved')
+        if user_input == 4:
+            print('View holidays')
+        if user_input == 5:
+            print('Exit')
+            exit_confirm = input('Do you want to exit? y/n')
+            if exit_confirm == 'y':
+                print('Exiting')
+                ended = True
+            else: 
+                print('Back to menu')
+        else: 
+            main()
+
 
 
 
